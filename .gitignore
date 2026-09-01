@@ -1,0 +1,39 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Datasets (Large files: ~2.7GB)
+Dataset/
+dataset/
+data/
+
+# Model Checkpoints / Weights (>100MB limit on GitHub)
+*.pth
+*.pt
+*.onnx
+*.h5
+*.pkl
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# OS Specific Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
