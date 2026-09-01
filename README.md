@@ -1,84 +1,84 @@
 # Skin Cancer Screening & Classification System
-## ระบบคัดกรองและวิเคราะห์มะเร็งผิวหนัง — Clinical Decision Support Tool
+## Clinical Decision Support Tool — Binary Malignancy Screening
 
-ระบบ AI สำหรับคัดกรองมะเร็งผิวหนังแบบ **Binary Classification** (Cancer vs Non-Cancer) จาก HAM10000 Dataset โดยใช้ Deep Learning (ResNet50 Transfer Learning)
+An AI-driven **Binary Classification** system (Cancer vs. Non-Cancer) for dermatoscopic skin lesion analysis using the HAM10000 dataset, powered by Deep Learning (**ResNet50 Transfer Learning**).
 
 > [!IMPORTANT]
-> ระบบ AI นี้เป็นเครื่องมือสนับสนุนการคัดกรองเบื้องต้นทางวิชาการและการวิจัยทางการแพทย์เท่านั้น ไม่สามารถใช้ทดแทนการวินิจฉัยจากแพทย์ผิวหนังเฉพาะทางได้
+> This AI system is designed as an academic and research-oriented clinical decision support tool for preliminary screening only. It is **not** a substitute for professional medical diagnosis, consultation, or histopathological examination by certified dermatologists.
 
 ---
 
-## สารบัญ
+## Table of Contents
 
-- [1. ภาพรวมโปรเจค](#1-ภาพรวมโปรเจค)
-- [2. คุณสมบัติหลัก](#2-คุณสมบัติหลัก)
-- [3. โครงสร้างโปรเจค](#3-โครงสร้างโปรเจค)
+- [1. Project Overview](#1-project-overview)
+- [2. Key Features](#2-key-features)
+- [3. Project Structure](#3-project-structure)
 - [4. Dataset: HAM10000](#4-dataset-ham10000)
-- [5. เทคโนโลยีและไลบรารีที่ใช้](#5-เทคโนโลยีและไลบรารีที่ใช้)
-- [6. สถาปัตยกรรมโมเดล](#6-สถาปัตยกรรมโมเดล)
-- [7. Pipeline การทำงาน](#7-pipeline-การทำงาน)
-- [8. รายละเอียดแต่ละ Step](#8-รายละเอียดแต่ละ-step)
-- [9. เทคนิค AI/ML ที่ใช้](#9-เทคนิค-aiml-ที่ใช้)
-- [10. การติดตั้งและวิธีใช้งาน](#10-การติดตั้งและวิธีใช้งาน)
-- [11. การตั้งค่าเฉพาะทาง](#11-การตั้งค่าเฉพาะทาง)
-- [12. ผลการทดสอบ](#12-ผลการทดสอบ)
-- [13. จุดเด่นและข้อจำกัด](#13-จุดเด่นและข้อจำกัด)
-- [14. สรุป](#14-สรุป)
+- [5. Technology Stack & Dependencies](#5-technology-stack--dependencies)
+- [6. Model Architecture](#6-model-architecture)
+- [7. End-to-End Pipeline](#7-end-to-end-pipeline)
+- [8. Detailed Pipeline Steps](#8-detailed-pipeline-steps)
+- [9. Summary of AI/ML Techniques](#9-summary-of-aiml-techniques)
+- [10. Installation & Usage](#10-installation--usage)
+- [11. Platform & Environment Configuration](#11-platform--environment-configuration)
+- [12. Experimental Results & Metrics](#12-experimental-results--metrics)
+- [13. Strengths & Limitations](#13-strengths--limitations)
+- [14. Summary](#14-summary)
 
 ---
 
-## 1. ภาพรวมโปรเจค
+## 1. Project Overview
 
-โปรเจคนี้เป็น **ระบบ AI สำหรับคัดกรองมะเร็งผิวหนัง (Skin Cancer Screening System)** ที่จำแนกรอยโรคผิวหนังออกเป็น **2 กลุ่ม** แบบ Binary Classification:
+This project implements an end-to-end **Skin Cancer Screening System** designed for binary classification of skin lesions into two clinical categories:
 
-| Class | กลุ่ม | รอยโรคที่รวม |
-|-------|------|-------------|
-| **Class 1** | Cancer / Pre-Cancer (Malignant) | mel (Melanoma), bcc (Basal Cell Carcinoma), akiec (Actinic Keratoses) |
-| **Class 0** | Non-Cancer (Benign) | nv (Melanocytic Nevi), bkl (Benign Keratosis), vasc (Vascular Lesion), df (Dermatofibroma) |
+| Class | Category | Included Lesion Subtypes |
+|-------|----------|--------------------------|
+| **Class 1** | **Cancer / Pre-Cancer (Malignant)** | `mel` (Melanoma), `bcc` (Basal Cell Carcinoma), `akiec` (Actinic Keratoses / Bowen's Disease) |
+| **Class 0** | **Non-Cancer (Benign)** | `nv` (Melanocytic Nevi), `bkl` (Benign Keratosis), `vasc` (Vascular Lesion), `df` (Dermatofibroma) |
 
-โดยใช้เทคนิค **Transfer Learning** จากโมเดล **ResNet50** ที่ถูก pre-train มาจาก ImageNet พัฒนาเป็นส่วนหนึ่งของวิชา **CPE310 — Healthcare AI System**
+The model utilizes **Transfer Learning** on a **ResNet50** architecture pre-trained on ImageNet. Developed as part of the **CPE310 — Healthcare AI System** course.
 
 > [!NOTE]
-> เวอร์ชันปัจจุบันเปลี่ยนจากการจำแนก 7 คลาส (Multi-class) เป็น **Binary Classification** ที่เน้นคัดกรอง Cancer vs Non-Cancer เพื่อให้ตรงกับบริบทการใช้งานทางคลินิก (Clinical Screening)
+> The current system focuses on **Binary Classification** (Cancer vs. Non-Cancer) instead of a 7-way multi-class categorization to align with real-world clinical screening workflows.
 
 ---
 
-## 2. คุณสมบัติหลัก
+## 2. Key Features
 
-| Feature | รายละเอียด |
-|---------|-----------|
-| **Binary Cancer Screening** | จำแนก Cancer/Pre-Cancer vs Non-Cancer (Benign) |
-| **Transfer Learning** | ResNet50 pre-trained on ImageNet V2 |
-| **Apple Silicon GPU** | รองรับ MPS (Metal Performance Shaders) Acceleration |
-| **Data Augmentation** | Flip, Rotation, ColorJitter, Affine (6 เทคนิค) |
-| **Class Balancing** | Weighted CrossEntropy Loss แก้ปัญหา Data Imbalance |
-| **Early Stopping** | Patience = 3 epochs ตาม Val F1-Score |
-| **LR Scheduling** | ReduceLROnPlateau ลด Learning Rate อัตโนมัติ |
-| **Clinical Metrics** | Sensitivity, Specificity, PPV, NPV, FNR |
-| **Professional Web UI** | Gradio interface ออกแบบเชิงคลินิก (ไม่ใช้ Emoji) |
-| **Risk Assessment** | HIGH RISK / LOW RISK พร้อมคำแนะนำทางคลินิก |
+| Feature | Description |
+|---------|-------------|
+| **Binary Cancer Screening** | Differentiates Cancer/Pre-Cancer from Benign lesions |
+| **Transfer Learning** | ResNet50 backbone pre-trained on ImageNet V2 |
+| **Apple Silicon GPU Acceleration** | Native support for MPS (Metal Performance Shaders) on macOS |
+| **Data Augmentation** | 6 techniques including Flip, Rotation, ColorJitter, and Affine transformations |
+| **Class Balancing** | Balanced class-weighted Cross-Entropy Loss to counter data imbalance |
+| **Early Stopping** | Patience of 3 epochs based on Validation F1-Score |
+| **Learning Rate Scheduling** | `ReduceLROnPlateau` for automated learning rate reduction |
+| **Clinical Safety Metrics** | Evaluates Sensitivity (Recall), Specificity, PPV, NPV, and False Negative Rate (FNR) |
+| **Professional Web UI** | Clean, clinical Gradio interface with custom CSS (no casual emojis) |
+| **Clinical Risk Assessment** | Generates HIGH RISK / LOW RISK cards with ABCDE management guidelines |
 
 ---
 
-## 3. โครงสร้างโปรเจค
+## 3. Project Structure
 
 ```
 Healthcare AI System/
 ├── Dataset/
-│   ├── HAM10000_images_part_1/        # รูปภาพชุดที่ 1 (~5,000 ภาพ)
-│   ├── HAM10000_images_part_2/        # รูปภาพชุดที่ 2 (~5,015 ภาพ)
-│   ├── HAM10000_metadata.csv          # Metadata: image_id, dx, ... (563 KB)
+│   ├── HAM10000_images_part_1/        # Image folder part 1 (~5,000 images)
+│   ├── HAM10000_images_part_2/        # Image folder part 2 (~5,015 images)
+│   ├── HAM10000_metadata.csv          # Metadata: image_id, dx, etc. (563 KB)
 │   ├── hmnist_28_28_L.csv             # Grayscale 28×28 pixel data
 │   ├── hmnist_28_28_RGB.csv           # RGB 28×28 pixel data
 │   ├── hmnist_8_8_L.csv              # Grayscale 8×8 pixel data
 │   └── hmnist_8_8_RGB.csv            # RGB 8×8 pixel data
-├── skin_lesion_classifier.py          # สคริปต์หลัก (1,358 บรรทัด, ~56 KB)
-├── best_cancer_model.pth              # โมเดล Binary ที่เทรนแล้ว (~227 MB)
-├── best_skin_model.pth                # โมเดล 7-class เวอร์ชันเก่า (~227 MB)
-├── cancer_confusion_matrix.png        # Confusion Matrix ของ Binary Model
-├── confusion_matrix.png               # Confusion Matrix ของ 7-class Model (เก่า)
-├── requirements.txt                   # Dependencies
-├── README.md                          # ไฟล์นี้
+├── skin_lesion_classifier.py          # Main script (~1,358 lines, ~56 KB)
+├── best_cancer_model.pth              # Trained binary screening model checkpoint (~227 MB)
+├── best_skin_model.pth                # Legacy 7-class model checkpoint (~227 MB)
+├── cancer_confusion_matrix.png        # Confusion matrix for binary model
+├── confusion_matrix.png               # Confusion matrix for legacy 7-class model
+├── requirements.txt                   # Project dependencies
+├── README.md                          # Project documentation
 └── venv/                              # Python Virtual Environment
 ```
 
@@ -86,76 +86,75 @@ Healthcare AI System/
 
 ## 4. Dataset: HAM10000
 
-**HAM10000** (Human Against Machine with 10000 training images) เป็นชุดข้อมูลมาตรฐานทางการแพทย์สำหรับวิจัยด้าน dermatoscopy ประกอบด้วย:
+The **HAM10000** (*Human Against Machine with 10000 training images*) dataset is a standard medical benchmark for dermatoscopic lesion analysis containing:
 
-- **จำนวนภาพ:** ~10,015 ภาพ (แบ่งเป็น 2 โฟลเดอร์)
-- **ขนาดภาพ:** ภาพ dermatoscopic คุณภาพสูง
-- **Metadata:** ไฟล์ CSV ที่มีข้อมูล `image_id`, `dx` (diagnosis) และข้อมูลอื่นๆ
+- **Total Images:** ~10,015 dermatoscopic images across 2 partitions
+- **Metadata:** CSV containing `image_id`, `dx` (diagnosis), demographic details, etc.
 
-### การจัดกลุ่มรอยโรค (Binary Grouping)
+### Clinical Binary Grouping
 
-#### Class 1: Cancer & Pre-Cancer (Malignant) — เป้าหมายการคัดกรอง
+#### Class 1: Cancer & Pre-Cancer (Malignant Target)
 
-| รหัส | ชื่อภาษาอังกฤษ | ชื่อภาษาไทย | ระดับเสี่ยง |
-|------|---------------|------------|------------|
-| `mel` | Melanoma | มะเร็งผิวหนังเมลาโนมา | สูงมาก |
-| `bcc` | Basal Cell Carcinoma | มะเร็งเซลล์ฐาน | สูง |
-| `akiec` | Actinic Keratoses / Bowen's Disease | ผิวหนังก่อนมะเร็ง | ปานกลาง (Precancerous) |
+| Code | Disease Name | Clinical Description | Risk Level |
+|------|--------------|----------------------|------------|
+| `mel` | Melanoma | Highly aggressive malignant melanocytic cancer | Critical / High |
+| `bcc` | Basal Cell Carcinoma | Common non-melanoma skin cancer with local invasion | High |
+| `akiec` | Actinic Keratoses / Bowen's Disease | Squamous pre-cancerous / intraepidermal carcinoma | Moderate (Precancerous) |
 
-#### Class 0: Non-Cancer (Benign) — รอยโรคไม่ร้ายแรง
+#### Class 0: Non-Cancer (Benign)
 
-| รหัส | ชื่อภาษาอังกฤษ | ชื่อภาษาไทย | ระดับเสี่ยง |
-|------|---------------|------------|------------|
-| `nv` | Melanocytic Nevi | ไฝ / ขี้แมลงวัน | ต่ำ |
-| `bkl` | Benign Keratosis-like Lesion | รอยโรคสะเก็ดไม่ร้ายแรง | ต่ำ |
-| `vasc` | Vascular Lesion | รอยโรคหลอดเลือด | ต่ำ |
-| `df` | Dermatofibroma | เนื้องอกเส้นใยผิวหนัง | ต่ำ |
+| Code | Disease Name | Clinical Description | Risk Level |
+|------|--------------|----------------------|------------|
+| `nv` | Melanocytic Nevi | Common benign moles | Low |
+| `bkl` | Benign Keratosis-like Lesions | Seborrheic keratoses, solar lentigines, lichen-planus-like | Low |
+| `vasc` | Vascular Lesions | Cherry angiomas, angiokeratomas, pyogenic granulomas | Low |
+| `df` | Dermatofibroma | Benign dermal fibrous histiocytomas | Low |
 
 > [!NOTE]
-> Dataset นี้มีปัญหา **Class Imbalance** — กลุ่ม Benign (~80%) มีมากกว่า Cancer (~20%) อย่างมาก โปรเจคแก้ปัญหานี้ด้วย Weighted CrossEntropy Loss
+> The dataset suffers from severe **Class Imbalance** — Benign cases account for ~80% while Malignant/Pre-cancer cases account for only ~20%. This is compensated for using balanced class weighting during training.
 
 ---
 
-## 5. เทคโนโลยีและไลบรารีที่ใช้
+## 5. Technology Stack & Dependencies
 
 ### 5.1 Core Deep Learning
 
-| Library | Version | หน้าที่ |
-|---------|---------|--------|
-| **PyTorch** | ≥ 2.0.0 | Framework หลักสำหรับ Deep Learning |
-| **TorchVision** | ≥ 0.15.0 | Pre-trained models (ResNet50), transforms |
+| Library | Version | Role |
+|---------|---------|------|
+| **PyTorch** | ≥ 2.0.0 | Core Deep Learning Framework |
+| **TorchVision** | ≥ 0.15.0 | Pre-trained models (ResNet50) and image transformations |
 
-### 5.2 Data Processing
+### 5.2 Data Processing & Evaluation
 
-| Library | Version | หน้าที่ |
-|---------|---------|--------|
-| **Pandas** | ≥ 2.0.0 | อ่านและจัดการ CSV metadata |
-| **NumPy** | ≥ 1.24.0 | การคำนวณเชิงตัวเลข |
-| **Pillow (PIL)** | ≥ 9.5.0 | โหลดและแปลงรูปภาพ |
-| **scikit-learn** | ≥ 1.3.0 | แบ่งข้อมูล, metrics, class weights |
+| Library | Version | Role |
+|---------|---------|------|
+| **Pandas** | ≥ 2.0.0 | Metadata parsing and DataFrame manipulation |
+| **NumPy** | ≥ 1.24.0 | Numerical operations and array manipulation |
+| **Pillow (PIL)** | ≥ 9.5.0 | Image loading and preprocessing |
+| **scikit-learn** | ≥ 1.3.0 | Stratified splitting, evaluation metrics, class weights |
 
-### 5.3 Visualization & UI
+### 5.3 Visualization & Interface
 
-| Library | Version | หน้าที่ |
-|---------|---------|--------|
-| **Matplotlib** | ≥ 3.7.0 | พล็อต Confusion Matrix |
-| **Seaborn** | ≥ 0.12.0 | Heatmap สำหรับ Confusion Matrix |
-| **tqdm** | ≥ 4.65.0 | Progress bar ขณะเทรน |
-| **Gradio** | ≥ 4.0.0 | Web demo interface (Clinical UI) |
+| Library | Version | Role |
+|---------|---------|------|
+| **Matplotlib** | ≥ 3.7.0 | Plotting confusion matrix figures |
+| **Seaborn** | ≥ 0.12.0 | Heatmap styling for confusion matrix |
+| **tqdm** | ≥ 4.65.0 | Real-time training progress bar |
+| **Gradio** | ≥ 4.0.0 | Interactive web-based clinical demonstration interface |
 
 ### 5.4 Hardware Acceleration
 
-- **Apple Silicon MPS** (Metal Performance Shaders) — ออกแบบมาสำหรับ macOS โดยเฉพาะ
-- รองรับ **CUDA** (NVIDIA GPU) เช่นกัน
-- Fallback เป็น **CPU** หากไม่มี GPU
+- **Apple Silicon MPS (Metal Performance Shaders)**: Optimized execution on macOS Apple Silicon GPUs.
+- **NVIDIA CUDA**: Supported if running on CUDA-enabled GPU hardware.
+- **CPU Fallback**: Graceful fallback when no hardware accelerator is present.
 
 ---
 
-## 6. สถาปัตยกรรมโมเดล
+## 6. Model Architecture
 
-### 6.1 Transfer Learning ด้วย ResNet50 (Binary Output)
+### 6.1 ResNet50 Transfer Learning (Binary Head)
 
-โปรเจคนี้ใช้เทคนิค **Transfer Learning** โดยนำโมเดล **ResNet50** ที่ถูก pre-train บน **ImageNet (V2)** มาดัดแปลงสำหรับ Binary Classification:
+The model leverages a pre-trained **ResNet50** architecture with a custom classification head:
 
 ```
 📷 Input Image (224 × 224 × 3)
@@ -165,19 +164,19 @@ Healthcare AI System/
 │         ResNet50 Backbone               │
 │         (Pre-trained on ImageNet)       │
 │                                         │
-│  Frozen Layers (ไม่เทรนซ้ำ):            │
+│  🔒 Frozen Layers (Feature Extractors): │
 │     ├── conv1 + bn1                     │
 │     ├── layer1                          │
 │     ├── layer2                          │
 │     └── layer3                          │
 │                                         │
-│  Trainable Layer (Fine-tuning):         │
+│  🔓 Trainable Layer (Fine-tuning):      │
 │     └── layer4                          │
 └─────────────────────┬───────────────────┘
                       │
                       ▼
 ┌─────────────────────────────────────────┐
-│      Custom Classifier Head             │
+│      🧠 Custom Classifier Head          │
 │                                         │
 │  Linear(2048 → 512)                     │
 │       ▼                                 │
@@ -187,372 +186,287 @@ Healthcare AI System/
 │       ▼                                 │
 │  Dropout(p=0.3)                         │
 │       ▼                                 │
-│  Linear(512 → 2)  ← Binary Output      │
+│  Linear(512 → 2)  [Binary Output]       │
 └─────────────────────┬───────────────────┘
                       │
                       ▼
-        Output: 2 Classes
-        [0] Non-Cancer  [1] Cancer
+          Output: 2 Classes
+     [0] Benign    [1] Malignant
 ```
 
 ### 6.2 Freezing Strategy
 
-| Layer | Trainable? | รายละเอียด |
-|-------|-----------|-----------|
-| `conv1`, `bn1` | Frozen | เรียนรู้ low-level features (edges, textures) |
-| `layer1` | Frozen | เรียนรู้ basic patterns |
-| `layer2` | Frozen | เรียนรู้ mid-level features |
-| `layer3` | Frozen | เรียนรู้ complex patterns |
-| **`layer4`** | **Trainable** | **Fine-tune high-level features สำหรับ skin lesion** |
-| **Custom FC Head** | **Trainable** | **Binary classifier: Cancer vs Non-Cancer** |
+| Layer | Trainable? | Purpose |
+|-------|------------|---------|
+| `conv1`, `bn1` | ❌ Frozen | Extracts low-level visual features (edges, basic textures) |
+| `layer1` | ❌ Frozen | Captures simple texture patterns |
+| `layer2` | ❌ Frozen | Captures mid-level geometric representations |
+| `layer3` | ❌ Frozen | Captures complex structures |
+| **`layer4`** | **✅ Trainable** | **Fine-tunes high-level dermatological lesion patterns** |
+| **Custom FC Head** | **✅ Trainable** | **Maps representations to binary screening probabilities** |
 
-- **Parameters ทั้งหมด:** ~23.5 ล้าน
-- **Parameters ที่เทรนได้:** ~16 ล้าน (layer4 + FC head)
-- **Parameters ที่ Freeze:** ~8.5 ล้าน
+- **Total Parameters:** ~23.5 Million
+- **Trainable Parameters:** ~16.0 Million (`layer4` + Custom FC Head)
+- **Frozen Parameters:** ~8.5 Million
 
 > [!TIP]
-> การ freeze layer ต้นๆ ช่วยรักษา feature extraction ทั่วไป (edges, textures) จาก ImageNet ในขณะที่ fine-tune layer หลังๆ ให้เรียนรู้ features เฉพาะทาง (skin lesion patterns) ทำให้เทรนได้เร็วและใช้ข้อมูลน้อยลง
+> Freezing early layers preserves general visual features learned from ImageNet while drastically reducing compute requirements and mitigating overfitting on small medical datasets.
 
 ---
 
-## 7. Pipeline การทำงาน
+## 7. End-to-End Pipeline
 
 ```
 Step 2.1                Step 2.2              Step 2.3             Step 2.4              Step 2.5
-Data Preparation   →    DataLoader      →     Training       →     Evaluation      →     Demo
+Data Preparation   →    DataLoader      →     Training       →     Evaluation      →     Clinical Demo
                         & Augmentation         & Model               & Metrics
 ─────────────────────────────────────────────────────────────────────────────────────────────────
-• อ่าน CSV             • Train:               • ResNet50            • Classification     • Gradio UI
-• สแกนรูป               Augmentation           + Custom Head          Report               (Clinical)
-• Map image_id→path    • Val/Test:            • AdamW Optimizer     • Sensitivity        • Upload Image
-• Binary Label           Resize+Normalize     • Weighted Loss         Specificity        • Cancer
-  (Cancer vs Benign)   • DataLoader           • Early Stopping        PPV / NPV            Screening
-• Stratified Split       batch=32             • LR Scheduling       • Confusion Matrix   • Risk
-  80/10/10             • workers=2                                    (2×2 Binary)         Assessment
-• Class Weights
+• Read CSV metadata    • Train:               • ResNet50            • Classification     • Gradio UI
+• Scan image dirs        Augmentations          + Custom Head          Report               (Clinical)
+• Map image_id→path    • Val/Test:            • AdamW Optimizer     • Sensitivity        • Image Upload /
+• Binary Mapping         Resize+Normalize     • Weighted Loss         Specificity          Clipboard
+  (Cancer vs Benign)   • PyTorch DataLoader   • Early Stopping        PPV / NPV / FNR    • Probability
+• Stratified Split       batch=32             • LR Scheduler        • 2×2 Confusion        Distribution
+  by Subtype (80/10/10)• workers=2              ReduceLROnPlateau     Matrix Plot        • Risk Assessment
+• Class Weighting
 ```
 
 ---
 
-## 8. รายละเอียดแต่ละ Step
+## 8. Detailed Pipeline Steps
 
-### 8.1 Step 2.1: Data Preparation & Cancer-Focused Preprocessing
+### 8.1 Step 2.1: Data Preparation & Preprocessing
 
-> โค้ด: `skin_lesion_classifier.py` บรรทัด 188–307
+> Code: `skin_lesion_classifier.py` (lines 188–307)
 
-1. **อ่าน Metadata CSV** — อ่านไฟล์ `HAM10000_metadata.csv`
-2. **สแกนรูปภาพ** — สแกนทั้ง 2 โฟลเดอร์เพื่อสร้าง mapping ระหว่าง `image_id` กับ file path
-3. **แปลง Label เป็น Binary** — จัดกลุ่มรหัสโรค 7 ชนิดเป็น 2 คลาส:
+1. **Load Metadata:** Parses `HAM10000_metadata.csv`.
+2. **Scan & Index Files:** Scans image partitions (`part_1` and `part_2`) to create `image_id` → file path mappings.
+3. **Binary Relabeling:** Maps multi-class diagnosis strings:
    - `mel`, `bcc`, `akiec` → **Class 1 (Cancer / Pre-Cancer)**
    - `nv`, `bkl`, `vasc`, `df` → **Class 0 (Non-Cancer / Benign)**
-4. **เก็บ Subtype** — เก็บรหัสโรคดั้งเดิมไว้ในคอลัมน์ `subtype` สำหรับ stratified split
-5. **Stratified Split โดย Subtype** — แบ่งข้อมูลโดยรักษาอัตราส่วนของโรคทั้ง 7 ชนิดย่อยในทุก split:
-   - **Train: 80%** | **Validation: 10%** | **Test: 10%**
-6. **คำนวณ Class Weights** — ใช้ `compute_class_weight("balanced")` สำหรับ 2 คลาส
+4. **Subtype Preservation:** Stores original `dx` in `subtype` for fine-grained stratified splitting.
+5. **Stratified Split:** Partitions data preserving the proportion of all 7 original subtypes across splits:
+   - **Train (80%)** | **Validation (10%)** | **Test (10%)**
+6. **Class Weight Computation:** Computes balanced class weights via `scikit-learn` to prioritize underrepresented cancer samples.
 
-### 8.2 Step 2.2: Custom Dataset & Data Augmentation
+### 8.2 Step 2.2: Dataset & Data Augmentation
 
-> โค้ด: `skin_lesion_classifier.py` บรรทัด 310–404
+> Code: `skin_lesion_classifier.py` (lines 310–404)
 
-#### Data Augmentation สำหรับ Training Set
+#### Training Augmentations
 
-| เทคนิค | Parameter | วัตถุประสงค์ |
-|--------|-----------|-------------|
-| `Resize` | 224 × 224 | ปรับขนาดภาพให้ตรงกับ input ของ ResNet50 |
-| `RandomHorizontalFlip` | p=0.5 | พลิกภาพซ้าย-ขวาแบบสุ่ม 50% |
-| `RandomVerticalFlip` | p=0.5 | พลิกภาพบน-ล่างแบบสุ่ม 50% |
-| `RandomRotation` | ±180° | หมุนภาพแบบสุ่ม |
-| `ColorJitter` | brightness=0.2, contrast=0.2, saturation=0.1, hue=0.05 | ปรับแสง/สีแบบสุ่ม |
-| `RandomAffine` | translate=5%, scale=95–105% | เลื่อนและซูมแบบสุ่ม |
-| `Normalize` | ImageNet mean/std | ปรับค่าพิกเซลตาม ImageNet |
+| Augmentation | Parameters | Objective |
+|--------------|------------|-----------|
+| `Resize` | 224 × 224 | Standard input resolution for ResNet50 |
+| `RandomHorizontalFlip` | p=0.5 | Invariance to horizontal lesion orientation |
+| `RandomVerticalFlip` | p=0.5 | Invariance to vertical lesion orientation |
+| `RandomRotation` | ±180° | Full rotational invariance (lesions can appear at any angle) |
+| `ColorJitter` | brightness=0.2, contrast=0.2, saturation=0.1, hue=0.05 | Robustness against lighting/dermatoscope variations |
+| `RandomAffine` | translate=5%, scale=95–105% | Scale and translation invariance |
+| `Normalize` | ImageNet mean/std | Standardizes feature distributions |
 
 #### Evaluation Transform (Val/Test)
 
-- เฉพาะ `Resize(224×224)` → `ToTensor()` → `Normalize()` — **ไม่มี augmentation**
+- Strict evaluation pipeline without stochastic perturbations: `Resize(224×224)` → `ToTensor()` → `Normalize()`.
 
-#### DataLoader Configuration
+#### DataLoader Parameters
 
-| Setting | ค่า | เหตุผล |
-|---------|-----|-------|
-| `batch_size` | 32 | สมดุลระหว่าง memory กับ convergence |
-| `num_workers` | 2 | เหมาะกับ macOS (หลีกเลี่ยง fork crash) |
-| `pin_memory` | True | เร่งการโอนข้อมูลไป GPU |
-| `drop_last` | True (train เท่านั้น) | ป้องกัน batch สุดท้ายที่เล็กเกินไปกับ BatchNorm |
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| `batch_size` | 32 | Balanced GPU memory consumption and gradient stability |
+| `num_workers` | 2 | Safe multi-process loading on macOS avoiding fork crashes |
+| `pin_memory` | True | Accelerates host-to-device memory transfer |
+| `drop_last` | True (train only) | Prevents incomplete mini-batches from corrupting BatchNorm |
 
-### 8.3 Step 2.3: Model Building & Training
+### 8.3 Step 2.3: Model Building & Training Loop
 
-> โค้ด: `skin_lesion_classifier.py` บรรทัด 407–642
+> Code: `skin_lesion_classifier.py` (lines 407–642)
 
-#### Hyperparameters
+#### Hyperparameter Configuration
 
-| Parameter | ค่า | หมายเหตุ |
-|-----------|-----|---------|
-| Image Size | 224 × 224 | มาตรฐานของ ResNet |
-| Learning Rate | 1e-4 | ค่อนข้างต่ำเพราะ fine-tune |
-| Weight Decay | 1e-2 | L2 regularization |
-| Epochs | 15 (max) | อาจหยุดก่อนด้วย Early Stopping |
-| Early Stopping Patience | 3 epochs | หยุดหาก Val F1 ไม่ดีขึ้น 3 epoch ติดต่อกัน |
-| NUM_CLASSES | **2** | Binary: Non-Cancer (0) vs Cancer (1) |
+| Parameter | Value | Note |
+|-----------|-------|------|
+| Input Resolution | 224 × 224 | 3-channel RGB |
+| Initial Learning Rate | 1e-4 | Low LR suitable for transfer learning |
+| Weight Decay | 1e-2 | Decoupled L2 regularization via AdamW |
+| Max Epochs | 15 | Subject to Early Stopping |
+| Early Stopping Patience | 3 | Halts if validation F1 does not improve for 3 epochs |
+| `NUM_CLASSES` | 2 | Binary: Non-Cancer (0) vs Cancer (1) |
 
-#### Optimizer: AdamW
+#### Optimization Strategy
 
-- **AdamW** (Adam with decoupled Weight Decay)
-- เทรนเฉพาะ parameters ที่ `requires_grad=True` (layer4 + FC head)
-
-#### Loss Function: Weighted CrossEntropyLoss
-
-- `nn.CrossEntropyLoss(weight=class_weights)` สำหรับ 2 คลาส
-- คลาส Cancer (~20% ของข้อมูล) ได้รับน้ำหนักสูงขึ้นเพื่อเพิ่ม Sensitivity
-
-#### Learning Rate Scheduler: ReduceLROnPlateau
-
-| Setting | ค่า | หมายเหตุ |
-|---------|-----|---------|
-| `mode` | `"max"` | ดู F1-Score (ยิ่งสูงยิ่งดี) |
-| `factor` | 0.5 | ลด LR ลงครึ่งหนึ่ง |
-| `patience` | 2 | รอ 2 epochs ก่อนลด |
-| `min_lr` | 1e-7 | ค่า LR ต่ำสุด |
-
-#### Training Monitoring
-
-ระบบติดตาม **Cancer Recall (Sensitivity)** เป็น metric เพิ่มเติมในทุก epoch:
-- `val_cancer_recall` — ค่า Recall เฉพาะ Class 1 (Cancer)
-- บันทึก Best Model ตาม **Weighted F1-Score** สูงสุด
-
-#### Best Model Checkpoint (`best_cancer_model.pth`)
-
-| ข้อมูลที่บันทึก | คำอธิบาย |
-|----------------|---------|
-| `epoch` | Epoch ที่ดีที่สุด |
-| `model_state_dict` | Weights ของโมเดล |
-| `optimizer_state_dict` | State ของ optimizer |
-| `val_f1` | Weighted F1-Score บน validation set |
-| `val_acc` | Accuracy บน validation set |
-| `val_loss` | Loss บน validation set |
-| `val_cancer_recall` | Cancer Sensitivity บน validation set |
-| `num_classes` | จำนวนคลาส (2) |
-| `class_mapping` | Mapping ชื่อคลาส |
+- **Optimizer:** `AdamW` updating only trainable parameters (`layer4` + classifier head).
+- **Loss Function:** `nn.CrossEntropyLoss(weight=class_weights)`.
+- **LR Scheduler:** `ReduceLROnPlateau` (mode=`max`, factor=`0.5`, patience=`2`, metric=`val_f1`).
+- **Tracking:** Monitors both validation F1 and `val_cancer_recall` (Sensitivity) per epoch.
+- **Checkpointing:** Saves best model state dictionary to `best_cancer_model.pth`.
 
 ### 8.4 Step 2.4: Evaluation & Clinical Safety Metrics
 
-> โค้ด: `skin_lesion_classifier.py` บรรทัด 645–769
+> Code: `skin_lesion_classifier.py` (lines 645–769)
 
-#### Clinical Screening Metrics ที่รายงาน
+#### Clinical Metrics Formulation
 
-ระบบคำนวณ metrics จาก Confusion Matrix 2×2 (TP, FP, TN, FN):
-
-| Metric | สูตร | ความหมายทางคลินิก |
-|--------|------|------------------|
-| **Sensitivity (Recall)** | TP / (TP + FN) | ความสามารถในการตรวจจับมะเร็ง |
-| **Specificity** | TN / (TN + FP) | ความสามารถในการยืนยัน Benign |
-| **PPV (Precision)** | TP / (TP + FP) | ถ้าระบบบอก Cancer → จริงกี่ % |
-| **NPV** | TN / (TN + FN) | ถ้าระบบบอก Benign → จริงกี่ % |
-| **FNR (False Negative Rate)** | FN / (TP + FN) | อัตราที่มะเร็งหลุดรอด (Safety metric) |
-| **Accuracy** | (TP + TN) / Total | ความถูกต้องรวม |
-| **F1-Score (Weighted)** | - | สมดุลระหว่าง Precision กับ Recall |
-
-**เกณฑ์ความปลอดภัย:** Sensitivity ≥ 80%
+| Metric | Formula | Clinical Meaning |
+|--------|---------|------------------|
+| **Sensitivity (Recall)** | TP / (TP + FN) | Proportion of true cancer cases detected |
+| **Specificity** | TN / (TN + FP) | Proportion of benign cases correctly ruled out |
+| **PPV (Precision)** | TP / (TP + FP) | Probability that a positive test is truly malignant |
+| **NPV** | TN / (TN + FN) | Probability that a negative test is truly benign |
+| **FNR (False Negative Rate)** | FN / (TP + FN) | Critical metric: rate of missed malignancies |
+| **Accuracy** | (TP + TN) / Total | Overall prediction correctness |
+| **Weighted F1** | - | Harmonic mean of Precision and Recall |
 
 > [!WARNING]
-> ในบริบทการคัดกรองมะเร็ง **False Negative** (มะเร็งจริงแต่ระบบบอกว่า Benign) เป็นความเสี่ยงสูงสุดทางคลินิก ดังนั้น **Sensitivity** และ **FNR** เป็น metrics ที่สำคัญที่สุด
-
-#### Confusion Matrix
-
-พล็อต Confusion Matrix 2×2 สำหรับ Binary Screening:
-1. **Case Counts** — จำนวนจริง (Heatmap สีน้ำเงิน)
-2. **Normalized Rate** — เปอร์เซ็นต์ (Heatmap สีส้ม)
-
-บันทึกเป็นไฟล์ `cancer_confusion_matrix.png`
+> In clinical cancer screening, **False Negatives (FN)** present the highest hazard (missed malignancy). Therefore, **Sensitivity** and **FNR** serve as the primary safety benchmarks.
 
 ### 8.5 Step 2.5: Gradio Clinical Web Demo
 
-> โค้ด: `skin_lesion_classifier.py` บรรทัด 772–1265
+> Code: `skin_lesion_classifier.py` (lines 772–1265)
 
-ระบบสร้าง **Professional Clinical Web Interface** ด้วย Gradio Blocks ที่ออกแบบใหม่ทั้งหมด:
+A professional, clinical-grade user interface built with Gradio Blocks:
 
-#### การออกแบบ UI
+- **Typography & Styling:** Styled with Inter/Sarabun typography and Slate neutral palette; clean medical aesthetic without casual emojis.
+- **Dynamic Risk Cards:** Emits stylized HTML cards (`HIGH RISK` red card vs. `LOW RISK` green card).
+- **Clinical Action Recommendations:** Contextual recommendations including urgent dermatologist referral, dermoscopy, biopsy, and ABCDE monitoring criteria.
+- **Probability Distribution:** Visual comparative bar representation of predicted class likelihoods.
 
-- **ธีม Professional** — ใช้ Inter + Sarabun font, ไม่มี Emoji, สี Slate/Neutral
-- **Custom CSS** — กว่า 240 บรรทัด CSS สำหรับ:
-  - Header section พร้อม tech badge
-  - Risk card (HIGH RISK สีแดง / LOW RISK สีเขียว)
-  - Status pill badges
-  - Probability bar chart แบบ HTML
-  - Disease info grid cards
-  - Medical disclaimer section
-- **Auto-analyze** — วิเคราะห์ทันทีเมื่ออัปโหลดภาพ (ไม่ต้องกดปุ่ม)
-
-#### ฟังก์ชันการทำงาน
-
-1. **นำเข้าภาพ** — อัปโหลดหรือวางจาก clipboard
-2. **วิเคราะห์** — Binary inference: Cancer probability vs Benign probability
-3. **Risk Assessment:**
-   - **HIGH RISK** → พบความเสี่ยงมะเร็ง → แนะนำพบ Dermatologist + Dermoscopy + Biopsy
-   - **LOW RISK** → ไม่พบมะเร็ง → ติดตามตามเกณฑ์ ABCDE
-4. **Probability Distribution** — แสดง bar chart เปรียบเทียบ Cancer vs Benign %
-5. **Target Lesion Categories** — แสดงข้อมูลโรค 3 ชนิดที่ระบบคัดกรอง (MEL, BCC, AKIEC)
-
-```
-ผู้ใช้อัปโหลดภาพ  →  Preprocess  →  ResNet50 Inference  →  Softmax (2 classes)
-                     Resize+Norm     Binary Classification     │
-                                                                ├── Cancer % → HIGH RISK card
-                                                                └── Benign % → LOW RISK card
-```
-
-เปิดเว็บเดโมที่ `http://127.0.0.1:7860`
+Access via browser at `http://127.0.0.1:7860`.
 
 ---
 
-## 9. เทคนิค AI/ML ที่ใช้
+## 9. Summary of AI/ML Techniques
 
-| เทคนิค | รายละเอียด | วัตถุประสงค์ |
-|--------|-----------|-------------|
-| **Transfer Learning** | ResNet50 pre-trained บน ImageNet V2 | ใช้ knowledge จาก ImageNet มาต่อยอด ลดเวลาเทรน |
-| **Fine-tuning** | เทรน layer4 + FC head, freeze ที่เหลือ | ปรับ high-level features ให้เหมาะกับ skin lesion |
-| **Binary Classification** | รวม 7 คลาส → 2 คลาส (Cancer vs Benign) | เน้นการคัดกรองมะเร็งทางคลินิก |
-| **Data Augmentation** | Flip, Rotation, ColorJitter, Affine | เพิ่มความหลากหลาย ลด Overfitting |
-| **Class Weighting** | Weighted CrossEntropyLoss (balanced) | แก้ปัญหา Class Imbalance (Cancer ~20%) |
-| **Stratified Splitting (by subtype)** | รักษาอัตราส่วนโรค 7 ชนิดย่อยในทุก split | กระจายข้อมูลสม่ำเสมอกว่า stratify by binary label |
-| **Early Stopping** | Patience=3 ตาม Val F1-Score | ป้องกัน Overfitting |
-| **LR Scheduling** | ReduceLROnPlateau (factor=0.5) | ลด Learning Rate อัตโนมัติเมื่อไม่พัฒนา |
-| **AdamW Optimizer** | LR=1e-4, WD=1e-2 | Optimizer ประสิทธิภาพสูง |
-| **BatchNorm + Dropout** | BN1d(512) + Dropout(0.3) | เสถียรภาพ + ลด Overfitting |
-| **Clinical Safety Metrics** | Sensitivity, Specificity, PPV, NPV, FNR | ประเมินความปลอดภัยทางคลินิก |
+| Technique | Implementation | Clinical / ML Objective |
+|-----------|----------------|--------------------------|
+| **Transfer Learning** | ResNet50 pre-trained on ImageNet V2 | Leverages generalized feature representations |
+| **Partial Fine-Tuning** | Unfrozen `layer4` + Custom FC head | Adapts high-level filters to skin lesions |
+| **Binary Formulation** | 7 subtypes grouped into 2 clinical categories | Aligns model output with triage screening needs |
+| **Stochastic Augmentation** | 6-stage transformation pipeline | Prevents overfitting to image acquisition artifacts |
+| **Class Weighting** | Balanced inverse frequency weighting | Penalizes false negatives on minority cancer class |
+| **Subtype Stratification** | Stratified split by all 7 granular types | Ensures identical subtype distribution across splits |
+| **Early Stopping** | Monitored on validation F1 score | Prevents over-optimization on training distribution |
+| **Learning Rate Decay** | Plateaux-driven learning rate halving | Enables fine convergence in loss landscape |
+| **Regularization** | BatchNorm1d + Dropout(0.3) + AdamW | Controls co-adaptation and weights magnitude |
 
 ---
 
-## 10. การติดตั้งและวิธีใช้งาน
+## 10. Installation & Usage
 
-### การติดตั้ง
+### Installation
 
 ```bash
-# 1. สร้าง Virtual Environment (แนะนำ)
+# 1. Create and activate a Virtual Environment (recommended)
 python3 -m venv venv
 source venv/bin/activate
 
-# 2. ติดตั้ง Dependencies
+# 2. Install required dependencies
 pip install -r requirements.txt
 ```
 
-### วิธีใช้งาน
+### Execution Modes
 
 ```bash
-# โหมด 1: เทรนโมเดล + ประเมินผล + เปิดเดโม (ครบทุก Step)
+# Mode 1: Full Pipeline (Train + Evaluate + Launch Web Demo)
 python skin_lesion_classifier.py
 
-# โหมด 2: เทรนด้วย Custom Hyperparameters
+# Mode 2: Custom Hyperparameters
 python skin_lesion_classifier.py --epochs 20 --batch-size 64
 
-# โหมด 3: ข้ามการเทรน ไปประเมินผล + เดโม (ต้องมีไฟล์ best_cancer_model.pth)
+# Mode 3: Skip Training (Evaluate existing checkpoint + Launch Demo)
 python skin_lesion_classifier.py --skip-train
 
-# โหมด 4: รันเฉพาะเดโม Gradio
+# Mode 4: Launch Web Demo directly
 python skin_lesion_classifier.py --demo
 ```
 
 ### Command Line Arguments
 
-| Argument | ค่าเริ่มต้น | คำอธิบาย |
-|----------|------------|---------|
-| `--demo` | - | รันเฉพาะเดโม Gradio (ต้องมีไฟล์ checkpoint) |
-| `--skip-train` | - | ข้ามการเทรน ไปประเมินผล+เดโม |
-| `--epochs` | 15 | จำนวน Epochs |
-| `--batch-size` | 32 | Batch Size |
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--demo` | `False` | Launches Gradio web demo only (requires model checkpoint) |
+| `--skip-train` | `False` | Skips training and runs test evaluation + web demo |
+| `--epochs` | `15` | Total number of training epochs |
+| `--batch-size` | `32` | Mini-batch size for DataLoaders |
 
 ---
 
-## 11. การตั้งค่าเฉพาะทาง
+## 11. Platform & Environment Configuration
 
-### สำหรับ macOS / Apple Silicon
+### Apple Silicon / macOS Optimization
 
-| Setting | ค่า | เหตุผล |
-|---------|-----|-------|
-| Device Priority | MPS → CUDA → CPU | ให้ Apple GPU ใช้ Metal Performance Shaders |
-| `num_workers` | 2 | macOS มีปัญหากับ fork-based multiprocessing |
-| SSL Context | `ssl._create_unverified_context` | แก้ปัญหา SSL Certificate บน macOS |
+- **Device Selection:** Auto-selects `mps` when Metal Performance Shaders are available, falling back to `cuda` or `cpu`.
+- **Worker Configuration:** `num_workers=2` avoids macOS spawn/fork multiprocessing deadlocks.
+- **SSL Fallback:** Unverified context override handles local macOS Python certificate chain issues.
 
 ### Reproducibility
 
-**Random Seed = 42** ถูกตั้งค่าให้ครบทุกตัว:
+Fixed seed (`RANDOM_SEED = 42`) set across:
 - `random.seed(42)`
 - `np.random.seed(42)`
 - `torch.manual_seed(42)`
-- `torch.mps.manual_seed(42)` — Apple Silicon
-- `torch.cuda.manual_seed_all(42)` — NVIDIA GPU
-
-### ImageNet Normalization
-
-- **Mean:** `[0.485, 0.456, 0.406]`
-- **Std:** `[0.229, 0.224, 0.225]`
+- `torch.mps.manual_seed(42)`
+- `torch.cuda.manual_seed_all(42)`
 
 ---
 
-## 12. ผลการทดสอบ
+## 12. Experimental Results & Metrics
 
-### Confusion Matrix (Binary Cancer Screening)
+### Confusion Matrix (Binary Screening)
 
 <p align="center">
-  <img src="cancer_confusion_matrix.png" alt="Cancer Screening Confusion Matrix" width="800"/>
+  <img src="cancer_confusion_matrix.png" alt="Binary Cancer Screening Confusion Matrix" width="800"/>
 </p>
 
-### ผลลัพธ์ทางคลินิก
+### Test Set Performance Breakdown
 
-| Metric | ค่า | คำอธิบาย |
-|--------|-----|---------|
-| **True Positives (TP)** | 155 | มะเร็งที่ตรวจพบได้ถูกต้อง |
-| **True Negatives (TN)** | 729 | Benign ที่ยืนยันได้ถูกต้อง |
-| **False Positives (FP)** | 77 | Benign ที่ถูกส่งตรวจเพิ่ม (ไม่อันตราย) |
-| **False Negatives (FN)** | 41 | มะเร็งที่หลุดรอด (ความเสี่ยงทางคลินิก) |
+| Metric | Count / Score | Clinical Significance |
+|--------|---------------|-----------------------|
+| **True Positives (TP)** | 155 | Malignant lesions correctly identified |
+| **True Negatives (TN)** | 729 | Benign lesions correctly ruled out |
+| **False Positives (FP)** | 77 | Benign lesions referred for review (Low safety hazard) |
+| **False Negatives (FN)** | 41 | Malignant lesions missed as benign (Critical clinical hazard) |
 
-| Clinical Metric | ค่า | สถานะ |
-|----------------|-----|-------|
-| **Sensitivity (Cancer Detection)** | 79.08% (155/196) | ใกล้เกณฑ์ 80% |
-| **Specificity (Benign Confirmation)** | 90.45% (729/806) | ดี |
-| **Accuracy** | 88.22% (884/1002) | ดี |
-| **False Negative Rate** | 20.92% (41/196) | ต้องปรับปรุง |
+| Clinical Performance Indicator | Value | Assessment |
+|--------------------------------|-------|------------|
+| **Sensitivity (Cancer Detection)** | **79.08%** (155/196) | Approaching target threshold (80.0%) |
+| **Specificity (Benign Rule-Out)** | **90.45%** (729/806) | High specificity / Low false alarm rate |
+| **Accuracy** | **88.22%** (884/1002) | Strong overall classification performance |
+| **False Negative Rate (FNR)** | **20.92%** (41/196) | Primary area targeted for future improvement |
 
 > [!CAUTION]
-> **Sensitivity อยู่ที่ 79.08%** ซึ่งใกล้เคียงแต่ยังต่ำกว่าเกณฑ์ 80% เล็กน้อย หมายความว่ายังมี ~21% ของ Cancer ที่ไม่ถูกตรวจพบ ในทางคลินิกจำเป็นต้องปรับปรุงก่อนนำไปใช้จริง
+> A Sensitivity of **79.08%** implies that roughly ~21% of malignant/pre-cancerous cases were misclassified as benign in this trial. Further architectural enhancements (e.g., ensemble methods, focal loss, higher resolution) are recommended prior to clinical deployment.
 
 ---
 
-## 13. จุดเด่นและข้อจำกัด
+## 13. Strengths & Limitations
 
-### จุดเด่น
+### Strengths
 
-1. **Binary Cancer Screening** — เปลี่ยนจาก 7-class เป็น Binary ที่ตรงกับ clinical workflow (คัดกรอง Cancer vs Non-Cancer)
-2. **Clinical Safety Metrics** — รายงาน Sensitivity, Specificity, PPV, NPV, FNR ครบถ้วนตามมาตรฐานทางการแพทย์
-3. **Professional UI** — Gradio interface ออกแบบเชิงคลินิก ไม่ใช้ Emoji, มี custom CSS, HTML risk cards
-4. **Stratified by Subtype** — แบ่งข้อมูลโดยรักษาสัดส่วนของโรค 7 ชนิดย่อย (ไม่ใช่แค่ binary label)
-5. **Class Imbalance Handling** — ใช้ Weighted Loss เพื่อเพิ่ม Sensitivity ของ Cancer class
-6. **Cancer Recall Tracking** — ติดตาม Cancer Sensitivity ทุก epoch ระหว่างเทรน
-7. **Risk Assessment** — HIGH/LOW RISK พร้อมคำแนะนำทางคลินิกภาษาไทยที่ละเอียด (ABCDE criteria)
-8. **Auto-analyze** — วิเคราะห์อัตโนมัติเมื่ออัปโหลดภาพ
-9. **Platform-optimized** — รองรับ Apple Silicon GPU (MPS)
-10. **Professional Logging** — ใช้ `[INFO]`, `[WARNING]`, `[ERROR]` แทน Emoji
+1. **Clinically Relevant Formulation:** Focuses on actionable binary screening rather than ambiguous multi-class categorization.
+2. **Comprehensive Metric Suite:** Reports medical safety metrics (Sensitivity, Specificity, PPV, NPV, FNR).
+3. **Subtype-Aware Stratification:** Preserves granular disease ratios throughout dataset splits.
+4. **Imbalance Mitigation:** Incorporates balanced loss weighting to safeguard sensitivity on minority classes.
+5. **Polished Clinical UI:** Clean interface with automated inference and standardized ABCDE management recommendations.
+6. **Platform Optimized:** High performance on Apple Silicon using native MPS acceleration.
 
-### ข้อจำกัด
+### Limitations
 
-1. **Sensitivity ยังไม่ถึง 80%** — Cancer detection rate อยู่ที่ ~79% ซึ่งยังต้องปรับปรุง
-2. **FNR สูง (~21%)** — มีมะเร็ง 41 จาก 196 ราย ที่ระบบไม่ตรวจพบ
-3. **Single Architecture** — ใช้ ResNet50 เท่านั้น ไม่ได้เปรียบเทียบกับสถาปัตยกรรมอื่น
-4. **ไม่มี Cross-Validation** — ใช้ single train/val/test split
+1. **Residual False Negative Rate:** An FNR of ~21% requires further mitigation before practical diagnostic triage.
+2. **Single Backbone Model:** Evaluated exclusively on ResNet50 without benchmark comparisons to Vision Transformers (ViT) or EfficientNet.
+3. **Single Split Evaluation:** Evaluated on a single stratified split rather than multi-fold cross-validation.
 
 ---
 
-## 14. สรุป
+## 14. Summary
 
-โปรเจคนี้เป็น **End-to-End Cancer Screening Pipeline** สำหรับคัดกรองมะเร็งผิวหนังจากภาพ dermatoscopic:
-
-| Step | ขั้นตอน | รายละเอียดหลัก |
-|------|--------|---------------|
-| **Step 2.1** | Data Preparation | Load CSV, Binary Grouping (7→2 classes), Stratified Split by subtype |
-| **Step 2.2** | Data Augmentation | 6 เทคนิค + ImageNet Normalization, Custom Dataset |
-| **Step 2.3** | Model & Training | ResNet50 Binary Classifier, AdamW, Weighted Loss, Cancer Recall tracking |
-| **Step 2.4** | Evaluation | Sensitivity/Specificity/PPV/NPV/FNR, 2×2 Confusion Matrix |
-| **Step 2.5** | Clinical Demo | Professional Gradio UI, Risk Assessment, ABCDE guidance |
-
-ทั้งหมดอยู่ในไฟล์ Python เดียว **(`skin_lesion_classifier.py`, ~1,358 บรรทัด)** พร้อมรองรับ Apple Silicon GPU
+| Step | Phase | Key Implementation Details |
+|------|-------|----------------------------|
+| **Step 2.1** | Data Preparation | Subtype indexing, binary grouping, stratified 80/10/10 split, class weighting |
+| **Step 2.2** | Data Augmentation | 6-stage augmentation pipeline, ImageNet normalization, custom PyTorch Dataset |
+| **Step 2.3** | Model & Training | ResNet50 backbone, custom binary head, AdamW, weighted loss, sensitivity tracking |
+| **Step 2.4** | Evaluation | Sensitivity, Specificity, PPV, NPV, FNR calculation, 2×2 confusion matrix plot |
+| **Step 2.5** | Clinical Demo | Professional Gradio web UI with risk assessment and ABCDE guidelines |
 
 ---
 

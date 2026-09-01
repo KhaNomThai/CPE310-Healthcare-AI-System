@@ -1,29 +1,73 @@
-# Virtual Environment
+# ==========================================
+# Environments & Secrets (ความปลอดภัยและ Environment)
+# ==========================================
 venv/
 env/
 ENV/
 .venv/
+.env
+.env.*
+*.env
 
-# Datasets (Large files: ~2.7GB)
+# ==========================================
+# Datasets & Archive Files (ไฟล์ชุดข้อมูลขนาดใหญ่)
+# ==========================================
 Dataset/
 dataset/
 data/
+datasets/
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
 
-# Model Checkpoints / Weights (>100MB limit on GitHub)
+# ==========================================
+# Model Weights & Checkpoints (ไฟล์โมเดลขนาดใหญ่ >100MB)
+# ==========================================
 *.pth
 *.pt
 *.onnx
 *.h5
+*.hdf5
 *.pkl
+*.ckpt
+*.bin
+*.safetensors
+*.joblib
+checkpoints/
 
-# Python Cache & Bytecode
+# ==========================================
+# Logs, Monitoring & Outputs (Log การเทรน)
+# ==========================================
+logs/
+runs/
+wandb/
+*.log
+outputs/
+results/
+
+# ==========================================
+# Jupyter Notebooks (Cache ของสมุดโน้ต)
+# ==========================================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# ==========================================
+# Python Cache & Builds
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .pytest_cache/
+build/
+dist/
+*.egg-info/
 
-# OS Specific Files
+# ==========================================
+# Operating System & IDE Files
+# ==========================================
 .DS_Store
 .DS_Store?
 ._*
@@ -31,8 +75,8 @@ __pycache__/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# IDE / Editor Files
 .vscode/
 .idea/
 *.swp
