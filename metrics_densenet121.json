@@ -1,0 +1,22 @@
+{
+  "model_name": "DenseNet121",
+  "overall_accuracy": 0.6929,
+  "macro_f1": 0.5554,
+  "weighted_f1": 0.7066,
+  "cancer_sensitivity": 0.8059,
+  "cancer_specificity": 0.8191,
+  "false_negative_rate": 0.1941,
+  "per_class_f1": {
+    "MEL": 0.6066,
+    "BCC": 0.6977,
+    "SCC": 0.4555,
+    "AK": 0.4126,
+    "NV": 0.821,
+    "BKL": 0.5321,
+    "VASC": 0.5918,
+    "DF": 0.3256
+  },
+  "training_time_seconds": 5172.8,
+  "total_params": 7483784,
+  "trainable_params": 2688008
+}

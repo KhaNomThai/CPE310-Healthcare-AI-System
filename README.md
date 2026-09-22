@@ -1,7 +1,7 @@
 # Skin Cancer Multi-Class Classification & Screening System
-## Clinical Decision Support Tool — ISIC 2019 Dataset (8 Classes with Binary Grouping)
+## Clinical Decision Support Tool — ISIC 2019 Dataset (8 Classes with Multi-Model Comparison)
 
-An AI-driven **8-Class Disease Classification & Two-Level Cancer Screening** system for dermatoscopic skin lesion analysis using the ISIC 2019 dataset (incorporating HAM10000), powered by Deep Learning (**ResNet50 Transfer Learning**).
+An AI-driven **8-Class Disease Classification & Two-Level Cancer Screening** system for dermatoscopic skin lesion analysis using the ISIC 2019 dataset (incorporating HAM10000), featuring **Multi-Model Comparison** across ResNet50, EfficientNet-B3, and DenseNet121.
 
 > [!IMPORTANT]
 > This AI system is designed as an academic and research-oriented clinical decision support tool for preliminary screening only. It is **not** a substitute for professional medical diagnosis, consultation, or histopathological examination by certified dermatologists.
@@ -16,13 +16,13 @@ An AI-driven **8-Class Disease Classification & Two-Level Cancer Screening** sys
 - [4. Dataset: ISIC 2019 (Superset of HAM10000)](#4-dataset-isic-2019-superset-of-ham10000)
 - [5. Disease Taxonomy & Clinical Categories](#5-disease-taxonomy--clinical-categories)
 - [6. Two-Level Classification Architecture](#6-two-level-classification-architecture)
-- [7. Technology Stack & Dependencies](#7-technology-stack--dependencies)
-- [8. Model Architecture](#8-model-architecture)
+- [7. Multi-Model Architecture Comparison](#7-multi-model-architecture-comparison)
+- [8. Technology Stack & Dependencies](#8-technology-stack--dependencies)
 - [9. End-to-End Pipeline](#9-end-to-end-pipeline)
 - [10. Clinical Safety Evaluation](#10-clinical-safety-evaluation)
 - [11. Installation & Usage](#11-installation--usage)
 - [12. Platform & Environment Configuration](#12-platform--environment-configuration)
-- [13. Gradio Clinical Web Interface](#13-gradio-clinical-web-interface)
+- [13. Gradio Clinical Web Interface with Model Selector](#13-gradio-clinical-web-interface-with-model-selector)
 
 ---
 
@@ -33,25 +33,27 @@ This project implements an end-to-end **Skin Cancer Multi-class Classification &
 1. **Multi-class Identification (8 Disease Classes):** Detects Melanoma (MEL), Basal Cell Carcinoma (BCC), Squamous Cell Carcinoma (SCC), Actinic Keratoses (AK), Melanocytic Nevi (NV), Benign Keratosis (BKL), Vascular Lesions (VASC), and Dermatofibroma (DF).
 2. **Two-Level Clinical Output:**
    - **Level 1 (Binary Screening):** Aggregated probability evaluation distinguishing `Cancer / Pre-Cancer (Malignant)` vs. `Non-Cancer (Benign)`.
-   - **Level 2 (Sub-Type Breakdown):** Detailed probability distribution across specific sub-types within each clinical category ("If cancer, what type? If benign, what type?").
+   - **Level 2 (Sub-Type Breakdown):** Detailed probability distribution across specific sub-types within each clinical category.
+3. **Multi-Model Benchmark:** Benchmarks three deep learning architectures (ResNet50, EfficientNet-B3, DenseNet121) under identical data partitions and class-weighting schemes.
 
-The system utilizes **Transfer Learning** on a **ResNet50** architecture pre-trained on ImageNet V2, fine-tuned specifically for dermoscopic lesion imagery. Developed as part of the **CPE310 — Healthcare AI System** course.
+Developed as part of the **CPE310 — Healthcare AI System** course.
 
 ---
 
 ## 2. Key Features
 
 | Feature | Description |
-|---------|-------------|
+|---|---|
+| **Modular Architecture** | Clean separation of concerns: config, data, models, training, evaluation, and UI |
 | **8 Disease Classes** | Expanded coverage including SCC (Squamous Cell Carcinoma) from ISIC 2019 |
+| **Multi-Model Support** | Built-in training and comparison for ResNet50, EfficientNet-B3, and DenseNet121 |
+| **Interactive Model Switching** | Switch between trained models live in the Gradio web UI without restarting |
+| **Comparative Metrics Table** | Side-by-side performance comparison table rendered in terminal and on web UI |
 | **Two-Level Output** | Binary screening decision accompanied by detailed sub-type differential probability |
-| **Transfer Learning** | ResNet50 backbone pre-trained on ImageNet V2 with fine-tuned residual blocks |
 | **Apple Silicon GPU Acceleration** | Full native acceleration via PyTorch MPS (Metal Performance Shaders) |
-| **Data Augmentation** | Robust pipeline: Random Horizontal/Vertical Flip, Rotation, ColorJitter, Affine |
-| **Class Imbalance Mitigation** | Computed balanced class-weighted Cross-Entropy Loss across all 8 classes |
-| **Early Stopping & Scheduling** | Macro F1-score tracking with `ReduceLROnPlateau` and patience-based stopping |
-| **Clinical Safety Assessment** | Rigorous evaluation of Cancer Sensitivity (Recall), Specificity, PPV, NPV, and False Negative Rate |
-| **Professional Web UI** | Clean, formal Gradio interface with dual-panel layout and zero casual emojis |
+| **Class Imbalance Mitigation** | Balanced class-weighted Cross-Entropy Loss across all 8 classes |
+| **Clinical Safety Assessment** | Rigorous evaluation of Cancer Sensitivity, Specificity, PPV, NPV, and False Negative Rate |
+| **Professional Web UI** | Clean, formal Gradio interface with zero casual emojis |
 
 ---
 
@@ -59,21 +61,30 @@ The system utilizes **Transfer Learning** on a **ResNet50** architecture pre-tra
 
 ```
 Healthcare AI System/
+├── config.py                     # Central configuration, paths, taxonomy, model registry
+├── data.py                       # Data loading, dataset class, transforms, dataloaders
+├── models.py                     # Model architectures (ResNet50, EfficientNet-B3, DenseNet121)
+├── train.py                      # Training loop, early stopping, LR scheduling
+├── evaluate.py                   # Evaluation metrics, confusion matrix, comparison table
+├── ui.py                         # Gradio clinical web interface with model selector
+├── main.py                       # CLI entry point (train, evaluate, demo)
+│
+├── model_resnet50.pth            # Trained ResNet50 checkpoint
+├── model_efficientnet_b3.pth     # Trained EfficientNet-B3 checkpoint
+├── model_densenet121.pth         # Trained DenseNet121 checkpoint
+├── metrics_resnet50.json         # Evaluation metrics for ResNet50
+├── metrics_efficientnet_b3.json  # Evaluation metrics for EfficientNet-B3
+├── metrics_densenet121.json      # Evaluation metrics for DenseNet121
+│
 ├── Dataset/
-│   ├── HAM10000/
-│   │   ├── HAM10000_images_part_1/        # HAM10000 subset images part 1
-│   │   ├── HAM10000_images_part_2/        # HAM10000 subset images part 2
-│   │   └── HAM10000_metadata.csv          # Metadata (10,015 records)
+│   ├── HAM10000/                 # HAM10000 subset images and metadata
 │   └── ISIC 2019/
 │       ├── ISIC_2019_Training_Input/         # Full 25,331 training images
 │       ├── ISIC_2019_Training_GroundTruth.csv # Ground truth one-hot labels
-│       └── ISIC_2019_Training_Metadata.csv    # Metadata (age, sex, site)
-├── skin_lesion_classifier.py              # Single-file production pipeline
-├── best_multiclass_cancer_model.pth       # Trained 8-class model checkpoint
-├── multiclass_confusion_matrix.png        # 8×8 confusion matrix with group demarcation
-├── requirements.txt                       # Project dependencies
-├── README.md                              # Project documentation
-└── venv/                                  # Python Virtual Environment
+│       └── ISIC_2019_Training_Metadata.csv    # Clinical metadata
+├── requirements.txt              # Project dependencies
+├── README.md                     # Project documentation
+└── venv/                         # Python Virtual Environment
 ```
 
 ---
@@ -88,8 +99,6 @@ The **ISIC 2019** dataset (*International Skin Imaging Collaboration 2019 Challe
 ---
 
 ## 5. Disease Taxonomy & Clinical Categories
-
-### 8-Class Clinical Distribution
 
 | Index | Code | English Name | Thai Name | Category | Risk Level |
 |:---:|:---:|---|---|:---:|:---:|
@@ -106,13 +115,11 @@ The **ISIC 2019** dataset (*International Skin Imaging Collaboration 2019 Challe
 
 ## 6. Two-Level Classification Architecture
 
-The system uses a single unified multi-class architecture followed by structured post-processing:
-
 ```
 [Dermoscopic Image] 
         │
         ▼
-[ResNet50 Backbone + Custom Head]
+[Selected Model: ResNet50 / EfficientNet-B3 / DenseNet121]
         │
         ▼ (Softmax)
 [8 Class Probabilities: P(MEL), P(BCC), P(SCC), P(AK), P(NV), P(BKL), P(VASC), P(DF)]
@@ -130,7 +137,23 @@ The system uses a single unified multi-class architecture followed by structured
 
 ---
 
-## 7. Technology Stack & Dependencies
+## 7. Multi-Model Architecture Comparison
+
+All models employ transfer learning from ImageNet pre-trained weights, fine-tuning top feature blocks with a shared classification head architecture:
+
+```
+Linear(in_features, 512) -> ReLU -> BatchNorm1d(512) -> Dropout(0.3) -> Linear(512, 8)
+```
+
+| Model | Total Parameters | Trainable Parameters | Backbone Feature Extraction |
+|---|---:|---:|---|
+| **ResNet50** | 24,562,248 | 16,018,952 | Layer 4 + Custom Head |
+| **EfficientNet-B3** | 11,488,304 | 1,384,968 | Last Stage (Block 8) + Head |
+| **DenseNet121** | 7,483,784 | 2,688,008 | DenseBlock 4 + Head |
+
+---
+
+## 8. Technology Stack & Dependencies
 
 - **Language:** Python 3.10+
 - **Deep Learning Framework:** PyTorch & Torchvision
@@ -138,7 +161,7 @@ The system uses a single unified multi-class architecture followed by structured
 - **Image Processing:** Pillow (PIL)
 - **Data Visualization:** Matplotlib (Agg backend)
 - **Web Interface:** Gradio
-- **System Acceleration:** Apple Silicon Metal Performance Shaders (MPS) / CUDA
+- **Hardware Acceleration:** Apple Silicon MPS / CUDA
 
 Install requirements:
 ```bash
@@ -147,38 +170,19 @@ pip install -r requirements.txt
 
 ---
 
-## 8. Model Architecture
-
-- **Backbone:** ResNet50 (pre-trained on ImageNet1K V2)
-- **Transfer Learning Strategy:**
-  - Frozen layers: `conv1`, `bn1`, `layer1`, `layer2`, `layer3`
-  - Trainable layers: `layer4` (high-level feature extraction) and custom classification head
-- **Classification Head:**
-  ```python
-  nn.Sequential(
-      nn.Linear(2048, 512),
-      nn.ReLU(inplace=True),
-      nn.BatchNorm1d(512),
-      nn.Dropout(p=0.3),
-      nn.Linear(512, 8) # 8 Classes
-  )
-  ```
-
----
-
 ## 9. End-to-End Pipeline
 
 ```
-1. Data Ingestion & Ground Truth Parsing (One-hot to index)
-2. Image Resolution (Resolves both standard and _downsampled files)
-3. Stratified Train / Val / Test Split (70% / 15% / 15%)
+1. Central Configuration & Device Initialization (config.py)
+2. ISIC 2019 Ground Truth Parsing & Image Path Resolution (data.py)
+3. Stratified Train / Val / Test Partitioning (70% / 15% / 15%)
 4. Class Weight Calculation for Imbalance Compensation
-5. Data Augmentation & PyTorch DataLoader Creation (num_workers=2)
-6. Model Instantiation (ResNet50 + Custom Head)
-7. Training Loop (AdamW, CrossEntropyLoss with weights, ReduceLROnPlateau)
-8. Early Stopping Check (Macro F1 on Validation set)
-9. Test Set Evaluation & 8×8 Confusion Matrix Generation
-10. Gradio Clinical Web Demo Deployment
+5. DataLoaders Creation with Augmentation Pipelines
+6. Model Instantiation via Unified Registry (models.py)
+7. Training Loop with Early Stopping & LR Scheduling (train.py)
+8. Multi-Model Test Set Evaluation & Metrics Persistence (evaluate.py)
+9. Cross-Model Benchmark Table Generation
+10. Interactive Gradio Clinical Web Demo Deployment (ui.py)
 ```
 
 ---
@@ -200,54 +204,56 @@ In clinical decision support, false negatives for malignant conditions represent
 
 ### Setup Environment
 ```bash
-# Clone or navigate to workspace
 cd "Healthcare AI System"
-
-# Activate Virtual Environment
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### Run Options
 
-#### 1. Full Training & Evaluation
+#### 1. Full Multi-Model Training & Benchmark
 ```bash
-python skin_lesion_classifier.py
+python main.py
 ```
-Performs complete data loading, model training, evaluation on test set, confusion matrix generation, and automatically launches the Gradio web demo.
+Sequentially trains ResNet50, EfficientNet-B3, and DenseNet121, evaluates each on the test split, prints comparison table, and launches the Gradio web UI.
 
-#### 2. Launch Gradio Demo Directly (Using Pre-Trained Weights)
+#### 2. Train a Specific Model
 ```bash
-python skin_lesion_classifier.py --demo
+python main.py --model ResNet50
+python main.py --model EfficientNet-B3
+python main.py --model DenseNet121
 ```
-Loads `best_multiclass_cancer_model.pth` and launches the web interface at `http://127.0.0.1:7860`.
 
-#### 3. Skip Training, Run Evaluation & Demo
+#### 3. Launch Gradio Demo Directly (Using Pre-Trained Weights)
 ```bash
-python skin_lesion_classifier.py --skip-train
+python main.py --demo
 ```
-Loads existing model checkpoint, runs full evaluation on test split, generates matrix, and launches demo.
+Loads available checkpoints and launches the interactive web demo at `http://127.0.0.1:7860`.
+
+#### 4. Skip Training, Run Evaluation & Demo
+```bash
+python main.py --skip-train
+```
+Loads existing checkpoints, runs test set evaluation, updates comparison metrics, and launches the web demo.
 
 ---
 
 ## 12. Platform & Environment Configuration
 
 - **macOS Apple Silicon:** Automatically uses `mps` device when available.
-- **SSL Certificate Bypass:** Included in code to prevent torchvision pre-trained weight download failures on macOS.
-- **DataLoader Workers:** Configured to `num_workers=2` to eliminate macOS fork-based multiprocessing issues.
-- **Headless Plotting:** Configured with `matplotlib.use("Agg")` to prevent GUI thread conflicts on macOS.
+- **SSL Certificate Bypass:** Handled in `config.py` to prevent torchvision weight download errors on macOS.
+- **DataLoader Workers:** Configured to `num_workers=2` for macOS fork safety.
+- **Headless Plotting & Font Cache:** Configured with `MPLCONFIGDIR` and `matplotlib.use("Agg")` to ensure fast initialization and avoid macOS permission blocks.
 
 ---
 
-## 13. Gradio Clinical Web Interface
+## 13. Gradio Clinical Web Interface with Model Selector
 
-The clinical web demo presents a clean, medical-grade interface without casual icons or emojis:
-- **Risk Status Banner:** Displays `HIGH RISK` or `LOW RISK` based on aggregate cancer probability.
-- **Screening Overview:** Visual comparison bars between Cancer / Pre-Cancer vs Benign groups.
-- **Most Likely Diagnosis:** Displays primary diagnosis with English & Thai clinical explanations.
-- **Sub-Type Probability Analysis:**
-  - Group 1: Sub-type distribution across MEL, BCC, SCC, and AK.
-  - Group 2: Sub-type distribution across NV, BKL, VASC, and DF.
-- **Clinical Recommendations:** Tailored medical guidance in both English and Thai.
+The web demo provides a clinical-grade interface:
+- **Model Selector:** Dropdown menu allowing instant switching between trained models with accuracy metrics displayed.
+- **Model Benchmark Panel:** Embedded side-by-side table displaying Accuracy, Macro F1, Sensitivity, Specificity, FNR, and parameter counts.
+- **Risk Status Banner:** Displays `HIGH RISK` or `LOW RISK` based on aggregate cancer probability with active model citation.
+- **Screening Overview:** Dual progress bars comparing Cancer / Pre-Cancer vs Benign probabilities.
+- **Most Likely Diagnosis:** Primary diagnosis with bilingual (English & Thai) descriptions.
+- **Sub-Type Probability Analysis:** Differential tables for both Cancer and Benign groups.
+- **Clinical Recommendations:** Evidence-based medical recommendations in English and Thai.

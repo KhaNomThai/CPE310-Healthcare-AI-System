@@ -1,0 +1,22 @@
+{
+  "model_name": "EfficientNet-B3",
+  "overall_accuracy": 0.6108,
+  "macro_f1": 0.4285,
+  "weighted_f1": 0.6351,
+  "cancer_sensitivity": 0.7787,
+  "cancer_specificity": 0.7912,
+  "false_negative_rate": 0.2213,
+  "per_class_f1": {
+    "MEL": 0.5334,
+    "BCC": 0.5751,
+    "SCC": 0.2971,
+    "AK": 0.3318,
+    "NV": 0.7914,
+    "BKL": 0.3705,
+    "VASC": 0.3017,
+    "DF": 0.2267
+  },
+  "training_time_seconds": 5138.5,
+  "total_params": 11488304,
+  "trainable_params": 1384968
+}

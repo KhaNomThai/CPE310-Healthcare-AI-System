@@ -1,0 +1,22 @@
+{
+  "model_name": "ResNet50",
+  "overall_accuracy": 0.7163,
+  "macro_f1": 0.5869,
+  "weighted_f1": 0.7265,
+  "cancer_sensitivity": 0.8001,
+  "cancer_specificity": 0.8383,
+  "false_negative_rate": 0.1999,
+  "per_class_f1": {
+    "MEL": 0.6303,
+    "BCC": 0.6964,
+    "SCC": 0.4978,
+    "AK": 0.5,
+    "NV": 0.8332,
+    "BKL": 0.5826,
+    "VASC": 0.5,
+    "DF": 0.4553
+  },
+  "training_time_seconds": 5184.4,
+  "total_params": 24562248,
+  "trainable_params": 16018952
+}
