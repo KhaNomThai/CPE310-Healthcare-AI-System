@@ -82,7 +82,10 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# Matplotlib: use non-interactive backend (required for macOS compatibility)
+# Matplotlib: configure cache and use non-interactive backend (macOS compatibility)
+import tempfile
+import os
+os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "mpl_cache"))
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
