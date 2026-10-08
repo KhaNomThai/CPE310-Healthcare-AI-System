@@ -223,12 +223,30 @@ def save_model_metrics(
     macro_f1 = f1_score(labels, preds, average="macro", zero_division=0)
     weighted_f1 = f1_score(labels, preds, average="weighted", zero_division=0)
 
-    binary_labels = np.array([1 if lbl in CANCER_INDICES else 0 for lbl in labels])
-    binary_preds = np.array([1 if pred in CANCER_INDICES else 0 for pred in preds])
+    # Top-2 and Top-3 accuracy
+    top2_preds = np.argsort(probs, axis=1)[:, -2:]
+    top2_correct = np.array([lbl in top2_preds[i] for i, lbl in enumerate(labels)])
+    top2_acc = np.mean(top2_correct)
 
+    top3_preds = np.argsort(probs, axis=1)[:, -3:]
+    top3_correct = np.array([lbl in top3_preds[i] for i, lbl in enumerate(labels)])
+    top3_acc = np.mean(top3_correct)
+
+    binary_labels = np.array([1 if lbl in CANCER_INDICES else 0 for lbl in labels])
+    cancer_indices_list = list(CANCER_INDICES)
+    cancer_prob = np.sum(probs[:, cancer_indices_list], axis=1)
+    binary_preds = (cancer_prob >= 0.5).astype(int)
+
+    binary_acc = accuracy_score(binary_labels, binary_preds)
     cancer_sensitivity = recall_score(binary_labels, binary_preds, pos_label=1, zero_division=0)
     cancer_specificity = recall_score(binary_labels, binary_preds, pos_label=0, zero_division=0)
     false_negative_rate = 1.0 - cancer_sensitivity
+
+    try:
+        from sklearn.metrics import roc_auc_score
+        cancer_auc = roc_auc_score(binary_labels, cancer_prob)
+    except Exception:
+        cancer_auc = 0.0
 
     # Per-class F1
     per_class_f1 = {}
@@ -240,6 +258,10 @@ def save_model_metrics(
     metrics = {
         "model_name": model_name,
         "overall_accuracy": round(float(overall_acc), 4),
+        "top2_accuracy": round(float(top2_acc), 4),
+        "top3_accuracy": round(float(top3_acc), 4),
+        "binary_accuracy": round(float(binary_acc), 4),
+        "cancer_auc": round(float(cancer_auc), 4),
         "macro_f1": round(float(macro_f1), 4),
         "weighted_f1": round(float(weighted_f1), 4),
         "cancer_sensitivity": round(float(cancer_sensitivity), 4),
@@ -280,29 +302,33 @@ def print_comparison_table() -> None:
         return
 
     print()
-    print("=" * 80)
-    print("  MODEL COMPARISON")
-    print("=" * 80)
+    print("=" * 86)
+    print("  MODEL CLINICAL BENCHMARK & COMPARISON")
+    print("=" * 86)
 
     names = list(all_metrics.keys())
     col_width = 18
 
     # Header
-    header = f"  {'Metric':<28s}"
+    header = f"  {'Metric':<32s}"
     for name in names:
         header += f"{name:>{col_width}s}"
     print(header)
-    print("  " + "-" * (28 + col_width * len(names)))
+    print("  " + "-" * (32 + col_width * len(names)))
 
     # Metrics rows
     rows = [
-        ("Overall Accuracy", "overall_accuracy", True),
+        ("Top-2 Differential Diagnosis", "top2_accuracy", True),
+        ("Top-3 Differential Diagnosis", "top3_accuracy", True),
+        ("Binary Malignancy Screening", "binary_accuracy", True),
+        ("Cancer Screening AUC-ROC", "cancer_auc", True),
+        ("Exact 8-Class Match (Top-1)", "overall_accuracy", True),
         ("Macro F1", "macro_f1", True),
         ("Weighted F1", "weighted_f1", True),
         ("Cancer Sensitivity", "cancer_sensitivity", True),
         ("Cancer Specificity", "cancer_specificity", True),
         ("False Negative Rate", "false_negative_rate", False),
-        ("Training Time (s)", "training_time_seconds", None),
+        ("Training Duration", "training_time_seconds", None),
         ("Total Parameters", "total_params", None),
     ]
 
@@ -320,13 +346,15 @@ def print_comparison_table() -> None:
         else:
             best_val = None
 
-        row_str = f"  {label:<28s}"
+        row_str = f"  {label:<32s}"
         for val in values:
             if key == "total_params":
                 formatted = f"{val / 1e6:.1f}M"
             elif key == "training_time_seconds":
                 minutes = val / 60
                 formatted = f"{minutes:.1f} min"
+            elif key == "cancer_auc":
+                formatted = f"{val:.4f}"
             else:
                 formatted = f"{val * 100:.1f}%"
 
@@ -335,6 +363,11 @@ def print_comparison_table() -> None:
             row_str += f"{formatted:>{col_width}s}"
         print(row_str)
 
-    print("  " + "-" * (28 + col_width * len(names)))
+    print("  " + "-" * (32 + col_width * len(names)))
     print("  * = Best value for this metric")
     print()
+
+
+if __name__ == "__main__":
+    print_comparison_table()
+

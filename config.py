@@ -32,7 +32,9 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # Matplotlib: configure cache and use non-interactive backend (macOS compatibility)
-os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "mpl_cache"))
+_mpl_dir = str(Path(tempfile.gettempdir()) / "mpl_cache")
+os.makedirs(_mpl_dir, exist_ok=True)
+os.environ["MPLCONFIGDIR"] = _mpl_dir
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402, F401

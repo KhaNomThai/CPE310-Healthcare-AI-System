@@ -1,6 +1,8 @@
-# ==========================================
-# Environments & Secrets (ความปลอดภัยและ Environment)
-# ==========================================
+# =============================================================================
+# Git Ignore Configuration -- Healthcare AI System (CPE310)
+# =============================================================================
+
+# Virtual Environments
 venv/
 env/
 ENV/
@@ -9,9 +11,7 @@ ENV/
 .env.*
 *.env
 
-# ==========================================
-# Datasets & Archive Files (ไฟล์ชุดข้อมูลขนาดใหญ่)
-# ==========================================
+# Datasets & Large Archives
 Dataset/
 dataset/
 data/
@@ -22,9 +22,7 @@ datasets/
 *.rar
 *.7z
 
-# ==========================================
-# Model Weights & Checkpoints (ไฟล์โมเดลขนาดใหญ่ >100MB)
-# ==========================================
+# Model Weights & Large Checkpoints (>25MB)
 *.pth
 *.pt
 *.onnx
@@ -37,9 +35,13 @@ datasets/
 *.joblib
 checkpoints/
 
-# ==========================================
-# Logs, Monitoring & Outputs (Log การเทรน)
-# ==========================================
+# Intermediate NumPy Arrays & Cache
+*.npy
+*.npz
+*.tmp
+scratch/
+
+# Training Logs & Execution Traces
 logs/
 runs/
 wandb/
@@ -47,15 +49,11 @@ wandb/
 outputs/
 results/
 
-# ==========================================
-# Jupyter Notebooks (Cache ของสมุดโน้ต)
-# ==========================================
+# Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 
-# ==========================================
-# Python Cache & Builds
-# ==========================================
+# Python Bytecode & Build Artifacts
 __pycache__/
 *.py[cod]
 *$py.class
@@ -65,9 +63,7 @@ build/
 dist/
 *.egg-info/
 
-# ==========================================
 # Operating System & IDE Files
-# ==========================================
 .DS_Store
 .DS_Store?
 ._*

@@ -1,11 +1,15 @@
 {
   "model_name": "DenseNet121",
   "overall_accuracy": 0.6929,
+  "top2_accuracy": 0.8758,
+  "top3_accuracy": 0.9445,
+  "binary_accuracy": 0.8189,
+  "cancer_auc": 0.9004,
   "macro_f1": 0.5554,
   "weighted_f1": 0.7066,
-  "cancer_sensitivity": 0.8059,
-  "cancer_specificity": 0.8191,
-  "false_negative_rate": 0.1941,
+  "cancer_sensitivity": 0.8201,
+  "cancer_specificity": 0.8183,
+  "false_negative_rate": 0.1799,
   "per_class_f1": {
     "MEL": 0.6066,
     "BCC": 0.6977,
